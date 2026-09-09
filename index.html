@@ -1964,4 +1964,81 @@ renderAll();
 renderRevisaoKpis();
 initTheme();
 initDb();
+  <script>
+  const URL_PLANILHA =
+    "https://script.google.com/macros/s/AKfycbyd8OMUrIg2T3O1Wt-epk4m3clKickL4AJP8FRC3L4Hs3kaK1u3u8sQ5qAiUR05XdE-xQ/exec";
+
+  async function carregarDadosDaFrota() {
+    try {
+      mostrarCarregamento();
+
+      const resposta = await fetch(
+        ${URL_PLANILHA}?atualizacao=${Date.now()}
+      );
+
+      if (!resposta.ok) {
+        throw new Error("Não foi possível acessar a planilha.");
+      }
+
+      const dados = await resposta.json();
+
+      console.log("Dados recebidos:", dados);
+
+      atualizarSite(dados);
+      mostrarUltimaAtualizacao(dados.atualizadoEm);
+    } catch (erro) {
+      console.error(erro);
+      mostrarErro("Não foi possível atualizar os dados da frota.");
+    }
+  }
+
+  function atualizarSite(dados) {
+    const resumoVeiculos =
+      dados.abas["Resumo (17 veículos)"];
+
+    const resumoAbastecimento =
+      dados.abas["Resumo de Abastecimento"];
+
+    const resumoManutencao =
+      dados.abas["Resumo de Manutenção"];
+
+    /*
+      Aqui entram as instruções que colocam cada valor
+      da planilha no local correto do site.
+    */
+
+    console.log("Veículos:", resumoVeiculos);
+    console.log("Abastecimentos:", resumoAbastecimento);
+    console.log("Manutenções:", resumoManutencao);
+  }
+
+  function mostrarCarregamento() {
+    console.log("Atualizando informações...");
+  }
+
+  function mostrarUltimaAtualizacao(data) {
+    const elemento = document.getElementById("ultima-atualizacao");
+
+    if (elemento) {
+      elemento.textContent =
+        "Dados atualizados em: " +
+        new Date(data).toLocaleString("pt-BR");
+    }
+  }
+
+  function mostrarErro(mensagem) {
+    const elemento = document.getElementById("erro-atualizacao");
+
+    if (elemento) {
+      elemento.textContent = mensagem;
+    }
+  }
+
+  carregarDadosDaFrota();
+
+  setInterval(carregarDadosDaFrota, 60000);
+  <p id="ultima-atualizacao"></p>
+<p id="erro-atualizacao"></p>
+</script>
+
 </script>
